@@ -1,0 +1,33 @@
+version: 0.2
+
+env:
+  variables:
+    IMAGE_REPO_NAME: hello-java
+    CLUSTER_NAME: demo-eks
+    AWS_DEFAULT_REGION: ap-south-1
+
+phases:
+
+  install:
+    commands:
+      - curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+  pre_build:
+    commands:
+      - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+      - REPOSITORY_URI=$ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$IMAGE_REPO_NAME
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $REPOSITORY_URI
+
+  build:
+    commands:
+      - mvn clean package
+      - docker build -t hello-java .
+      - docker tag hello-java:latest $REPOSITORY_URI:$CODEBUILD_BUILD_NUMBER
+
+  post_build:
+    commands:
+      - docker push $REPOSITORY_URI:$CODEBUILD_BUILD_NUMBER
+      - aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_DEFAULT_REGION
+      - helm upgrade --install hello-java ./helm/hello-java \
+          --set image.repository=$REPOSITORY_URI \
+          --set image.tag=$CODEBUILD_BUILD_NUMBER

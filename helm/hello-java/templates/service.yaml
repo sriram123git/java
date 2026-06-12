@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: hello-java
+
+spec:
+  type: {{ .Values.service.type }}
+
+  selector:
+    app: hello-java
+
+  ports:
+  - port: {{ .Values.service.port }}
+    targetPort: {{ .Values.containerPort }}
