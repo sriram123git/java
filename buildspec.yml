@@ -21,7 +21,6 @@ phases:
   build:
     commands:
       - pwd
-      - ls -ltr
       - mvn clean package
       - ls -ltr target/
       - docker build -t hello-java .
