@@ -21,16 +21,11 @@ phases:
   build:
     commands:
       - mvn clean package
-      - ls -ltr target
       - docker build -t hello-java .
       - docker tag hello-java:latest $REPOSITORY_URI:$CODEBUILD_BUILD_NUMBER
 
   post_build:
     commands:
+      - docker push $REPOSITORY_URI:$CODEBUILD_BUILD_NUMBER
       - aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_DEFAULT_REGION
-      - kubectl get nodes
-      - kubectl get pods -A
-      - helm version
-      - helm lint ./helm/hello-java
       - helm upgrade --install hello-java ./helm/hello-java --set image.repository=$REPOSITORY_URI --set image.tag=$CODEBUILD_BUILD_NUMBER
-          
