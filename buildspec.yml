@@ -20,9 +20,8 @@ phases:
 
   build:
     commands:
-      - pwd
       - mvn clean package
-      - ls -ltr target/
+      - ls -ltr target
       - docker build -t hello-java .
       - docker tag hello-java:latest $REPOSITORY_URI:$CODEBUILD_BUILD_NUMBER
 
