@@ -4,7 +4,7 @@ env:
   variables:
     IMAGE_REPO_NAME: hello-java
     CLUSTER_NAME: demo-eks
-    AWS_DEFAULT_REGION: ap-south-1
+    AWS_DEFAULT_REGION: us-east-1
 
 phases:
 
@@ -34,6 +34,5 @@ phases:
       - kubectl get pods -A
       - helm version
       - helm lint ./helm/hello-java
-      - helm upgrade --install hello-java ./helm/hello-java \
-          --set image.repository=$REPOSITORY_URI \
-          --set image.tag=$CODEBUILD_BUILD_NUMBER
+      - helm upgrade --install hello-java ./helm/hello-java --set image.repository=$REPOSITORY_URI --set image.tag=$CODEBUILD_BUILD_NUMBER
+          
